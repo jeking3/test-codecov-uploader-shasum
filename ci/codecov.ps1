@@ -19,13 +19,14 @@ if (Get-Command "gpg.exe" -ErrorAction SilentlyContinue){
     if ($LASTEXITCODE -ne 0) { Throw "Signature validation of the SHASUM failed." }
     $Reference = $(($(certUtil -hashfile .\codecov.exe SHA256)[1], "codecov.exe") -join "  ")
     $Difference = $(Get-Content codecov.exe.SHA256SUM)
+    DIR
+    echo "Reference:"
+    echo "$Reference"
+    echo "Difference:"
+    echo "$Difference"
     If ($(Compare-Object -ReferenceObject $Reference -DifferenceObject $Difference).length -eq 0) {
         echo "SHASUM verified"
     } Else {
-        echo "Reference:"
-        echo "$Reference"
-        echo "Difference:"
-        echo "$Difference"
         Throw "SHASUM validation of the codecov binary failed."
     }
 }
