@@ -4,13 +4,17 @@ $scriptPath = split-path $MyInvocation.MyCommand.Path
 
 # Install uploader
 Invoke-WebRequest -Headers @{"Cache-Control"="no-cache"} -Uri https://uploader.codecov.io/latest/windows/codecov.exe -Outfile codecov.exe
+if ($LASTEXITCODE -ne 0) { Throw "Downloading codecov.exe failed." }
 
 # Verify integrity
 if (Get-Command "gpg.exe" -ErrorAction SilentlyContinue){
     $ProgressPreference = 'SilentlyContinue'
     Invoke-WebRequest -Headers @{"Cache-Control"="no-cache"} -Uri https://keybase.io/codecovsecurity/pgp_keys.asc -OutFile codecov.asc
+    if ($LASTEXITCODE -ne 0) { Throw "Downloading codecov.asc failed." }
     Invoke-WebRequest -Headers @{"Cache-Control"="no-cache"} -Uri https://uploader.codecov.io/latest/windows/codecov.exe.SHA256SUM -Outfile codecov.exe.SHA256SUM
+    if ($LASTEXITCODE -ne 0) { Throw "Downloading codecov.exe.SHA256SUM failed." }
     Invoke-WebRequest -Headers @{"Cache-Control"="no-cache"} -Uri https://uploader.codecov.io/latest/windows/codecov.exe.SHA256SUM.sig -Outfile codecov.exe.SHA256SUM.sig
+    if ($LASTEXITCODE -ne 0) { Throw "Downloading codecov.exe.SHA256SUM.sig failed." }
 
     $ErrorActionPreference = "Continue"
     gpg.exe --import codecov.asc
